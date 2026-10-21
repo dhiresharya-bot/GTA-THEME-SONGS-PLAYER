@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GTA Music Player</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;justify-content:center;align-items:center;font-family:Arial,sans-serif;background:linear-gradient(135deg,#101010,#292929);color:white;padding:20px 0}
+.player{width:92%;max-width:430px;padding:25px;background:#1d1d1d;border-radius:25px;text-align:center;box-shadow:0 15px 40px rgba(0,0,0,.6)}
+h1{font-size:25px;margin:10px 0}.subtitle{color:#aaa;margin-bottom:20px}
+.option{width:100%;padding:15px 12px;margin:8px 0;border:0;border-radius:12px;font-size:15px;font-weight:bold;cursor:pointer;background:#333;color:white}
+.option:hover{background:#444}.cover{width:140px;height:140px;margin:20px auto;border-radius:22px;display:flex;justify-content:center;align-items:center;font-size:65px;background:linear-gradient(135deg,#6a5cff,#b000ff)}
+#musicPlayer{display:none;margin-top:20px}input[type=range]{width:100%;accent-color:#8b5cff;cursor:pointer}
+.time{display:flex;justify-content:space-between;color:#aaa;font-size:12px;margin-top:5px}
+.play{width:78px;height:78px;margin:25px 0;border:0;border-radius:50%;background:white;color:black;font-size:30px;cursor:pointer}
+.play:active{transform:scale(.95)}.volume{display:flex;align-items:center;gap:10px}
+.status{margin-top:18px;color:#aaa;font-size:13px;overflow-wrap:anywhere}
+.back{display:none;margin-top:18px;padding:10px 18px;background:#333;color:white;border:0;border-radius:10px;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="player">
+  <div id="menu">
+    <h1>🎮 GTA Music Player</h1>
+    <div class="subtitle">Choose your GTA theme song</div>
+    <button class="option" onclick="selectSong('sanandreas')">🎵 Listen the GTA San Andreas Theme Song</button>
+    <button class="option" onclick="selectSong('gta6')">🎮 Listen the GTA 6 Theme Song</button>
+    <div class="status">Select a song to continue</div>
+  </div>
+  <div id="musicPlayer">
+    <div class="cover">🎵</div>
+    <h1 id="songTitle">Song Name</h1>
+    <div class="subtitle" id="artist">GTA Music</div>
+    <input type="range" id="progress" min="0" max="100" value="0">
+    <div class="time"><span id="current">0:00</span><span id="total">0:00</span></div>
+    <button class="play" id="playBtn">▶</button>
+    <div class="volume">🔊 <input type="range" id="volume" min="0" max="1" step="0.01" value="1"></div>
+    <div class="status" id="status">Ready 🎵</div>
+    <button class="back" id="backBtn" onclick="goBack()">⬅ Back to Menu</button>
+    <audio id="audio" preload="metadata"></audio>
+  </div>
+</div>
+<script>
+const audio=document.getElementById("audio");
+const playBtn=document.getElementById("playBtn");
+const progress=document.getElementById("progress");
+const volume=document.getElementById("volume");
+const current=document.getElementById("current");
+const total=document.getElementById("total");
+const status=document.getElementById("status");
+const menu=document.getElementById("menu");
+const musicPlayer=document.getElementById("musicPlayer");
+const backBtn=document.getElementById("backBtn");
+let selectedSong="";
+function selectSong(song){
+  selectedSong=song; audio.pause(); audio.currentTime=0;
+  playBtn.textContent="▶"; progress.value=0; current.textContent="0:00"; total.textContent="0:00";
+  menu.style.display="none"; musicPlayer.style.display="block"; backBtn.style.display="inline-block";
+  if(song==="sanandreas"){
+    audio.src="./song.mp3";
+    document.getElementById("songTitle").textContent="GTA San Andreas Intro";
+    document.getElementById("artist").textContent="GTA San Andreas";
+  }else{
+    audio.src="./Gta6.mp3";
+    document.getElementById("songTitle").textContent="GTA 6 Theme Song";
+    document.getElementById("artist").textContent="Grand Theft Auto VI";
+  }
+  audio.load(); status.textContent="Loading song...";
+  audio.play().then(()=>{playBtn.textContent="⏸";status.textContent="Playing 🎵";})
+  .catch(()=>{playBtn.textContent="▶";status.textContent="Song could not be played. Check the MP3 file.";});
+}
+function goBack(){
+  audio.pause(); audio.currentTime=0; audio.removeAttribute("src"); audio.load();
+  musicPlayer.style.display="none"; menu.style.display="block";
+  playBtn.textContent="▶"; progress.value=0; current.textContent="0:00"; total.textContent="0:00";
+}
+playBtn.addEventListener("click",async()=>{
+  if(audio.paused){try{await audio.play();playBtn.textContent="⏸";status.textContent="Playing 🎵";}
+  catch(error){status.textContent="Song could not be played ❌";}}
+  else{audio.pause();playBtn.textContent="▶";status.textContent="Paused";}
+});
+audio.addEventListener("loadedmetadata",()=>{total.textContent=formatTime(audio.duration);});
+audio.addEventListener("timeupdate",()=>{
+  if(!audio.duration)return;
+  progress.value=(audio.currentTime/audio.duration)*100;
+  current.textContent=formatTime(audio.currentTime);
+});
+progress.addEventListener("input",()=>{if(audio.duration)audio.currentTime=(progress.value/100)*audio.duration;});
+volume.addEventListener("input",()=>{audio.volume=volume.value;});
+audio.addEventListener("ended",()=>{playBtn.textContent="▶";progress.value=100;status.textContent="Finished 🎵";});
+audio.addEventListener("error",()=>{
+  if(!selectedSong)return;
+  status.textContent=selectedSong==="gta6"?"Gta6.mp3 not found ❌":"song.mp3 not found ❌";
+  playBtn.textContent="▶";
+});
+function formatTime(seconds){
+  if(!isFinite(seconds))return "0:00";
+  let minutes=Math.floor(seconds/60),secs=Math.floor(seconds%60);
+  if(secs<10)secs="0"+secs;
+  return minutes+":"+secs;
+}
+</script>
+</body>
+</html>
