@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta name="google-site-verification" content="WOQmjMkfx2iREyZCxy1MlSsFRG160Sj_ZNAw5TMvkkA" />
+<meta name="google-site-verification" content="WOQmjMkfx2iREyZCxy1MlSsFRG160Sj_ZNAw5TMvkkA">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GTA Music Player</title>
@@ -17,8 +17,8 @@ body{
   justify-content:center;
   align-items:center;
   font-family:Arial,sans-serif;
-  background: light blue;
-  color:white;
+  background:linear-gradient(135deg,#eaf4ff,#c9e2ff);
+  color:#222;
   padding:20px 0;
 }
 
@@ -26,14 +26,14 @@ body{
   width:92%;
   max-width:430px;
   padding:25px;
-  background:#1d1d1d;
+  background:#fff;
   border-radius:25px;
   text-align:center;
-  box-shadow:0 15px 40px rgba(0,0,0,.6);
+  box-shadow:0 15px 40px rgba(30,70,120,.18);
 }
 
 h1{font-size:25px;margin:10px 0}
-.subtitle{color:#aaa;margin-bottom:20px}
+.subtitle{color:#667085;margin-bottom:20px}
 
 .option{
   display:block;
@@ -45,11 +45,11 @@ h1{font-size:25px;margin:10px 0}
   font-size:15px;
   font-weight:bold;
   cursor:pointer;
-  background:#333;
-  color:white;
+  background:#e8eef7;
+  color:#24334a;
 }
 
-.option:hover{background:#444}
+.option:hover{background:#d5e4f8}
 
 .cover{
   width:140px;
@@ -67,14 +67,14 @@ h1{font-size:25px;margin:10px 0}
 
 input[type=range]{
   width:100%;
-  accent-color:#8b5cff;
+  accent-color:#7657ef;
   cursor:pointer;
 }
 
 .time{
   display:flex;
   justify-content:space-between;
-  color:#aaa;
+  color:#667085;
   font-size:12px;
   margin-top:5px;
 }
@@ -85,8 +85,8 @@ input[type=range]{
   margin:25px 0;
   border:0;
   border-radius:50%;
-  background:white;
-  color:black;
+  background:#7657ef;
+  color:white;
   font-size:30px;
   cursor:pointer;
 }
@@ -101,7 +101,7 @@ input[type=range]{
 
 .status{
   margin-top:18px;
-  color:#aaa;
+  color:#667085;
   font-size:13px;
   overflow-wrap:anywhere;
 }
@@ -110,8 +110,8 @@ input[type=range]{
   display:none;
   margin-top:18px;
   padding:10px 18px;
-  background:#333;
-  color:white;
+  background:#e8eef7;
+  color:#24334a;
   border:0;
   border-radius:10px;
   cursor:pointer;
@@ -119,11 +119,12 @@ input[type=range]{
 
 .download-btn{
   text-decoration:none;
-  background:#6a5cff;
+  background:#7657ef;
+  color:white;
   margin-top:18px;
 }
 
-.download-btn:hover{background:#806fff}
+.download-btn:hover{background:#6041d5}
 </style>
 </head>
 
@@ -135,15 +136,19 @@ input[type=range]{
     <div class="subtitle">Choose your GTA theme song</div>
 
     <button class="option" onclick="selectSong('sanandreas')">
-      🎵 Listen to GTA San Andreas Theme Song
+      🎵 Listen to GTA San Andreas
+    </button>
+
+    <button class="option" onclick="selectSong('gta4')">
+      🎮 Listen to GTA 4
     </button>
 
     <button class="option" onclick="selectSong('gta5')">
-      🎮 Listen to GTA 5 Theme Song
+      🎮 Listen to GTA 5
     </button>
 
     <button class="option" onclick="selectSong('gta6')">
-      🎮 Listen to GTA 6 Theme Song
+      🎮 Listen to GTA 6
     </button>
 
     <div class="status">Select a song to continue</div>
@@ -184,6 +189,7 @@ input[type=range]{
 
     <audio id="audio" preload="metadata"></audio>
   </div>
+
 </div>
 
 <script>
@@ -209,6 +215,13 @@ const songs = {
     artist: "GTA San Andreas"
   },
 
+  gta4: {
+    file: "./gta4.mp3",
+    downloadName: "gta4.mp3",
+    title: "GTA 4 Theme Song",
+    artist: "Grand Theft Auto IV"
+  },
+
   gta5: {
     file: "./gta5.mp3",
     downloadName: "gta5.mp3",
@@ -229,7 +242,6 @@ function selectSong(song) {
   if (!selected) return;
 
   selectedSong = song;
-
   audio.pause();
   audio.currentTime = 0;
 
@@ -246,23 +258,20 @@ function selectSong(song) {
   document.getElementById("artist").textContent = selected.artist;
 
   audio.src = selected.file;
-
   downloadBtn.href = selected.file;
   downloadBtn.download = selected.downloadName;
 
   audio.load();
   status.textContent = "Loading song...";
 
-  audio.play()
-    .then(() => {
-      playBtn.textContent = "⏸";
-      status.textContent = "Playing 🎵";
-    })
-    .catch(() => {
-      playBtn.textContent = "▶";
-      status.textContent =
-        "Could not play song. Check the MP3 filename.";
-    });
+  audio.play().then(() => {
+    playBtn.textContent = "⏸";
+    status.textContent = "Playing 🎵";
+  }).catch(() => {
+    playBtn.textContent = "▶";
+    status.textContent =
+      "Could not play song. Check the MP3 file.";
+  });
 }
 
 function goBack() {
@@ -278,6 +287,7 @@ function goBack() {
   progress.value = 0;
   current.textContent = "0:00";
   total.textContent = "0:00";
+  status.textContent = "Ready 🎵";
 }
 
 playBtn.addEventListener("click", async () => {
@@ -303,13 +313,13 @@ audio.addEventListener("loadedmetadata", () => {
 audio.addEventListener("timeupdate", () => {
   if (!audio.duration) return;
 
-  progress.value = (audio.currentTime / audio.duration) * 100;
+  progress.value = audio.currentTime / audio.duration * 100;
   current.textContent = formatTime(audio.currentTime);
 });
 
 progress.addEventListener("input", () => {
   if (audio.duration) {
-    audio.currentTime = (progress.value / 100) * audio.duration;
+    audio.currentTime = progress.value / 100 * audio.duration;
   }
 });
 
@@ -328,7 +338,6 @@ audio.addEventListener("error", () => {
 
   status.textContent =
     songs[selectedSong].downloadName + " not found ❌";
-
   playBtn.textContent = "▶";
 });
 
@@ -339,7 +348,6 @@ function formatTime(seconds) {
   let secs = Math.floor(seconds % 60);
 
   if (secs < 10) secs = "0" + secs;
-
   return minutes + ":" + secs;
 }
 </script>
